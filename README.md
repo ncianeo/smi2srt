@@ -3,10 +3,10 @@ smi 자막을 srt로 변환해주는 파이썬 프로그램 (EMBY 라이브러�
 우분투 리눅스 기준으로 작성했고 http://bryan.wiki/263 를 참조함.
 
 요구사항:
--iconv
--sed
--python 2.7 or newer
--libsubtitles-perl (Ubuntu 16.04 or newer)
+- iconv
+- sed
+- python 2.7 or newer
+- libsubtitles-perl (Ubuntu 16.04 or newer)
 
 설치:
 데비안 리눅스 환경이라면 python과 libsubtitles-perl만 설치하면 바로 사용이 가능합니다.
