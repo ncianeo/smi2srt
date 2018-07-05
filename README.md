@@ -10,7 +10,7 @@ smi 자막을 srt로 변환해주는 파이썬 프로그램 (EMBY 라이브러�
 
 설치:
 데비안 리눅스 환경이라면 python과 libsubtitles-perl만 설치하면 바로 사용이 가능합니다.
-smi2srt 파일이 포함된 경로를 PATH dependency에 추가하면 설치 끝.
+smi2srt 파일이 포함된 경로를 PATH environment에 추가하면 설치 끝.
 
 사용법:
 smi2srt -b <BASE_ENCODING> -t <TARGET_ENCODING> <MOVIE_LIBRARY_DIR>
