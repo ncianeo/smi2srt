@@ -1,0 +1,59 @@
+#!/usr/bin/python
+import os
+import subprocess
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-b", "--base", help="base encoding", default="euc-kr")
+parser.add_argument("-t", "--target", help="target encoding", default="utf-8")
+parser.add_argument("dir", help="target directory. ex) ./smi2srt -t ./Movies", default="./")
+
+args = parser.parse_args()
+
+PATH = args.dir
+BC = args.base
+TC = args.target
+print("media library path:", PATH)
+print("base encoding:", BC)
+print("target encoding:", TC)
+success=[]
+fail=[]
+print("finding and converting started...")
+for p,w,f in os.walk(PATH):
+    for file_name in f:
+        name, ext = os.path.splitext(file_name)
+        if ext=='.SMI':
+            print('renaming %s.SMI to %s.smi' %(name,name))
+            subprocess.call('mv \"%s/%s.SMI\" \"%s/%s.smi\"' %(p,name,p,name),shell=True)
+        if ext=='.smi':
+            smi_path = os.path.join(p,name+'.smi')
+            _smi_path = os.path.join(p,'_'+name+'.smi')
+            srt_path = os.path.join(p,name+'.srt')
+            _srt_path = os.path.join(p,'_'+name+'.srt')
+            if subprocess.call('iconv -f %s -t %s \"%s\" > \"%s\"' %(BC,TC,smi_path,_smi_path), shell=True)==0:
+                if subprocess.call('subs -c srt \"%s\" -o \"%s\"' %(_smi_path,_srt_path),shell=True)==0:
+                    success.append(smi_path)
+                    subprocess.call('sed \"s/&nbsp;//g\" \"%s\" > \"%s\"' %(_srt_path,srt_path),shell=True)
+                else:
+                    fail.append(smi_path)
+                subprocess.call('rm -f \"%s\" \"%s\"' %(_smi_path,_srt_path),shell=True)
+            else:
+                if subprocess.call('subs -c srt \"%s\" -o \"%s\"' %(smi_path,_srt_path),shell=True)==0:
+                    success.append(smi_path)
+                    subprocess.call('sed \"s/&nbsp;//g\" \"%s\" > \"%s\"' %(_srt_path,srt_path),shell=True)
+                else:
+                    fail.append(smi_path)
+                subprocess.call('rm -f \"%s\" \"%s\"' %(_smi_path,_srt_path),shell=True)
+
+smi_list = list(set(success) | set(fail))
+print('\nfound .smi subtitles:')
+for smi in smi_list:
+    print(smi)
+
+print('\nworked .smi subtitles:')
+for smi in success:
+    print(smi)
+
+print('\nfailed .smi subtitles:')
+for smi in fail:
+    print(smi)
