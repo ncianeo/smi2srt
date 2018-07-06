@@ -5,17 +5,15 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--base", help="base encoding", default="euc-kr")
-parser.add_argument("-t", "--target", help="target encoding", default="utf-8")
 parser.add_argument("dir", help="target directory. ex) ./smi2srt -t ./Movies", default="./")
 
 args = parser.parse_args()
 
 PATH = args.dir
 BC = args.base
-TC = args.target
+TC = 'utf-8'
 print("media library path:", PATH)
 print("base encoding:", BC)
-print("target encoding:", TC)
 success=[]
 fail=[]
 print("finding and converting started...")
