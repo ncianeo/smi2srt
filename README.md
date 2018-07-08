@@ -1,6 +1,8 @@
 # smi2srt
 smi 자막을 srt로 변환해주는 파이썬 프로그램 (EMBY 라이브러리 자막 관리용으로 적합).
-[PySAMI][pysamilink] [pysamilink]:https://github.com/g6123/PySAMI "PySAMI" 의 smi parser를 가져옴 이 부분의 라이센스는 유지됨.
+[PySAMI][pysamilink]
+[pysamilink]:https://github.com/g6123/PySAMI "PySAMI"
+의 smi parser를 가져옴 이 부분의 라이센스는 유지됨.
 파이썬의 chardet 모듈을 이용해 자막 인코딩 자동 탐지.
 
 ## 요구사항:
