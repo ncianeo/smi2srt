@@ -1,47 +1,96 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+import codecs
+import re
+import chardet
 import os
-import subprocess
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-b", "--base", help="base encoding", default="euc-kr")
+parser.add_argument("-l", "--language", help="choose language to convert", default="kr")
 parser.add_argument("dir", help="target directory. ex) ./smi2srt -t ./Movies", default="./")
 
 args = parser.parse_args()
 
 PATH = args.dir
-BC = args.base
-TC = 'utf-8'
+LANG = args.language.upper()+"CC"
+
+def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://github.com/g6123/PySAMI)
+    search = lambda string, pattern: re.search(pattern, string, flags=re.I)
+
+    def split_content(string, tag):
+        threshold = '<'+tag
+
+        return list(map(
+            lambda item: (threshold+item).strip(),
+            re.split(threshold, string, flags=re.I)
+        ))[1:]
+
+    def parse_p(item):
+        lang = search(item, '<p(.+)class=([a-z]+)').group(2)
+
+        content = item[search(item, '<p(.+)>').end():]
+        content = content.replace('\n', '')
+        content = re.sub('<br ?/?>', '\n', content, flags=re.I)
+        content = re.sub('<.*?>','', content)
+        content = content.strip()
+
+        return [lang, content]
+
+    data = []
+
+    try:
+        for item in split_content(smi, 'sync'):
+
+            timecode = search(item, '<sync start=([0-9]+)').group(1)
+            content = dict(map(parse_p, split_content(item, 'p')))
+
+            data.append([timecode, content])
+    except:
+        raise ConversionError(-3)
+    return data
+
+def convert(data, lang): # written by ncianeo
+    def ms_to_ts(time):
+        time = int(time)
+        ms = time%1000
+        s = int(time/1000)%60
+        m = int(time/1000/60)%60
+        h = int(time/1000/60/60)
+        return (h,m,s,ms)
+    # smi sync info checking
+    nb = [int(d[0]) for d in data]
+    if nb[:-1]!=sorted(nb[:-1]):
+        print('this smi file is broken')
+        return ''
+    else:
+        srt=''
+        for i in range(len(data)-1):
+            srt+=str(i+1)+'\n'
+            srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(data[i+1][0])
+            content=data[i][1][lang]
+            if content!='&nbsp;':
+                srt+=content+'\n\n'
+            else:
+                srt+='\n\n'
+        return srt
+
 print("media library path:", PATH)
-print("base encoding:", BC)
 success=[]
 fail=[]
 print("finding and converting started...")
 for p,w,f in os.walk(PATH):
     for file_name in f:
-        name, ext = os.path.splitext(file_name)
-        if ext=='.SMI':
-            print('renaming %s.SMI to %s.smi' %(name,name))
-            subprocess.call('mv \"%s/%s.SMI\" \"%s/%s.smi\"' %(p,name,p,name),shell=True)
-        if ext=='.smi':
-            smi_path = os.path.join(p,name+'.smi')
-            _smi_path = os.path.join(p,'_'+name+'.smi')
-            srt_path = os.path.join(p,name+'.srt')
-            _srt_path = os.path.join(p,'_'+name+'.srt')
-            if subprocess.call('iconv -f %s -t %s \"%s\" > \"%s\"' %(BC,TC,smi_path,_smi_path), shell=True)==0:
-                if subprocess.call('subs -c srt \"%s\" -o \"%s\"' %(_smi_path,_srt_path),shell=True)==0:
-                    success.append(smi_path)
-                    subprocess.call('sed \"s/&nbsp;//g\" \"%s\" > \"%s\"' %(_srt_path,srt_path),shell=True)
-                else:
-                    fail.append(smi_path)
-                subprocess.call('rm -f \"%s\" \"%s\"' %(_smi_path,_srt_path),shell=True)
-            else:
-                if subprocess.call('subs -c srt \"%s\" -o \"%s\"' %(smi_path,_srt_path),shell=True)==0:
-                    success.append(smi_path)
-                    subprocess.call('sed \"s/&nbsp;//g\" \"%s\" > \"%s\"' %(_srt_path,srt_path),shell=True)
-                else:
-                    fail.append(smi_path)
-                subprocess.call('rm -f \"%s\" \"%s\"' %(_smi_path,_srt_path),shell=True)
+        if file_name[-4:].lower()=='.smi':
+            print('processing %s' %os.path.join(p,file_name))
+            with open(os.path.join(p,file_name),'rb') as smi_file:
+                smi_raw = smi_file.read()
+                encoding = chardet.detect(smi_raw[:20000])
+            smi = smi_raw.decode(encoding['encoding'])
+            srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+'.srt'),'w',encoding='utf-8')
+            srt_file.write(convert(parse(smi),LANG))
+            success.append(file_name)
+            #except:
+            #    fail.append(file_name)
 
 smi_list = list(set(success) | set(fail))
 print('\nfound .smi subtitles:')
