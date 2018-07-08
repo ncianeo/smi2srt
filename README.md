@@ -18,10 +18,10 @@ pip install chardet
 
 ## 사용법:
 ~~~bash
-smi2srt -l <LANGUAGE> <MOVIE_LIBRARY_DIR>
+smi2srt -l <TARGET_LANGUAGE> <MOVIE_LIBRARY_DIR>
 ~~~
 
-- <LANGUAGE> (default = kr) : smi 파일로부터 어느 언어를 불러올지를 지정합니다. 기본 값은 kr(한국어)입니다.
+- <TARGET_LANGUAGE> (default = kr) : smi 파일로부터 어느 언어를 불러올지를 지정합니다. 기본 값은 kr(한국어)입니다.
 - <MOVIE_LIBRARY_DIR> : 영화 라이브러리 경로입니다. 세부 경로까지 recursive하게 탐색하므로 라이브러리 디렉토리의 최상위 PATH를 입력하시면 됩니다.
 
 프로그램 실행 후 변환이 완료된 자막 파일과 실패한 자막 파일이 출력됩니다.
