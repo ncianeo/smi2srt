@@ -14,6 +14,7 @@ args = parser.parse_args()
 PATH = args.dir
 LANG = args.language.upper()+"CC"
 
+
 def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://github.com/g6123/PySAMI)
     search = lambda string, pattern: re.search(pattern, string, flags=re.I)
 
@@ -46,7 +47,7 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
 
             data.append([timecode, content])
     except:
-        raise ConversionError(-3)
+        print("Conversion ERROR: maybe this file is not supported.")
     return data
 
 def convert(data, lang): # written by ncianeo
@@ -85,15 +86,16 @@ for p,w,f in os.walk(PATH):
     for file_name in f:
         if file_name[-4:].lower()=='.smi':
             print('processing %s' %os.path.join(p,file_name))
-            with open(os.path.join(p,file_name),'rb') as smi_file:
-                smi_raw = smi_file.read()
-                encoding = chardet.detect(smi_raw[:20000])
-            smi = smi_raw.decode(encoding['encoding'])
-            srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+'.srt'),'w',encoding='utf-8')
-            srt_file.write(convert(parse(smi),LANG))
-            success.append(file_name)
-            #except:
-            #    fail.append(file_name)
+            try:
+                with open(os.path.join(p,file_name),'rb') as smi_file:
+                    smi_raw = smi_file.read()
+                    encoding = chardet.detect(smi_raw[:20000])
+                smi = smi_raw.decode(encoding['encoding'])
+                srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+'.srt'),'w',encoding='utf-8')
+                srt_file.write(convert(parse(smi),LANG))
+                success.append(file_name)
+            except:
+                fail.append(file_name)
 
 smi_list = list(set(success) | set(fail))
 print('\nfound .smi subtitles:')
