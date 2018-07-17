@@ -63,25 +63,21 @@ def convert(data, lang): # written by ncianeo
         m = int(time/1000/60)%60
         h = int(time/1000/60/60)
         return (h,m,s,ms)
-    # smi sync info checking
-    nb = [int(d[0]) for d in data]
-    if nb[:-1]!=sorted(nb[:-1]):
-        print('this smi file is broken')
-        return ''
-    else:
-        srt=''
-        for i in range(len(data)-1):
-            srt+=str(i+1)+'\n'
+    srt=''
+    sub_nb = 1
+    for i in range(len(data)-1):
+        if i>0:
+            if data[i][0]<data[i-1][0]:
+                continue
+        if data[i][1][lang]!='&nbsp;':
+            srt+=str(sub_nb)+'\n'
+            sub_nb+=1
             if data[i+1][0]>data[i][0]:
                 srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(data[i+1][0])
             else:
                 srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(int(data[i][0])+1000)
-            content=data[i][1][lang]
-            if content!='&nbsp;':
-                srt+=content+'\n\n'
-            else:
-                srt+='\n\n'
-        return srt
+            srt+=data[i][1][lang]+'\n\n'
+    return srt
 
 print("media library path:", PATH)
 success=[]
