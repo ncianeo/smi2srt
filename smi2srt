@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import codecs
 import re
-import chardet
+import cchardet
 import os
 import argparse
 
@@ -94,7 +94,7 @@ for p,w,f in os.walk(PATH):
             try:
                 with open(os.path.join(p,file_name),'rb') as smi_file:
                     smi_raw = smi_file.read()
-                    encoding = chardet.detect(smi_raw[:min(len(smi_raw),40000)])
+                    encoding = cchardet.detect(smi_raw)
                 smi = smi_raw.decode(encoding['encoding'])
                 srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+'.srt'),'w',encoding='utf-8')
                 srt_file.write(convert(parse(smi),LANG))
