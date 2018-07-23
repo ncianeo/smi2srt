@@ -14,8 +14,7 @@ smi 자막을 srt로 변환해주는 파이썬 프로그램 (EMBY 라이브러�
 pip install cchardet
 ~~~
 - smi2srt 설치:
-1. smi2srt 파일을 열어 첫 줄의 #!/usr/bin/python3 부분을 설치된 파이썬 경로로 수정.
-2. smi2srt 파일의 경로를 $PATH environment에 추가.
+1. smi2srt 파일의 경로를 $PATH environment에 추가. 혹은 /usr/local/bin에 파일 복사
 
 ## 사용법:
 ~~~bash
@@ -29,5 +28,8 @@ smi2srt -l <TARGET_LANGUAGE> <MOVIE_LIBRARY_DIR>
 
 ## 변경사항:
 
-# 2017년 7월 18일
+# 2018년 7월 18일
 chardet 대신 속도가 빠른 cchardet으로 인코딩 감지 라이브러리 변경
+
+# 2018년 7월 23일
+코드 첫 줄을 #!/usr/bin/env python 로 수정해 설치과정에서 첫 줄 수정을 하지 않아도 되도록 함
