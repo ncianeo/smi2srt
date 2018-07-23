@@ -28,7 +28,11 @@ smi2srt -l <TARGET_LANGUAGE> <MOVIE_LIBRARY_DIR>
 
 ## 변경사항:
 
+<<<<<<< HEAD
 # 2018년 7월 18일
+=======
+### 2017년 7월 18일
+>>>>>>> 4048707b8eac6348066be29cf577b37b641576de
 chardet 대신 속도가 빠른 cchardet으로 인코딩 감지 라이브러리 변경
 
 # 2018년 7월 23일
