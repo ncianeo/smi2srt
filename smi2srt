@@ -30,6 +30,7 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
         lang = search(item, '<p(.+)class=([a-z]+)').group(2)
 
         content = item[search(item, '<p(.+)>').end():]
+        content = content.replace('\r', '')
         content = content.replace('\n', '')
         content = re.sub('<br ?/?>', '\n', content, flags=re.I)
         content = re.sub('<.*?>','', content)
@@ -45,7 +46,6 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
             if pattern!=None:
                 timecode = pattern.group(1)
                 content = dict(map(parse_p, split_content(item, 'p')))
-
                 data.append([timecode, content])
     except:
         print("Conversion ERROR: maybe this file is not supported.")
@@ -54,7 +54,13 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
 def convert(data, lang): # written by ncianeo
     if lang not in data[0][1].keys():
         print("lang: %s is not found. will use the first lang in the smi file." %lang)
-        lang = list(data[0][1].keys())[0]
+        i=0
+        while True:
+            try:
+                lang = list(data[i][1].keys())[0]
+                break
+            except:
+                i+=1
         print("chosen lang: %s" %lang)
     def ms_to_ts(time):
         time = int(time)
@@ -66,17 +72,20 @@ def convert(data, lang): # written by ncianeo
     srt=''
     sub_nb = 1
     for i in range(len(data)-1):
-        if i>0:
-            if data[i][0]<data[i-1][0]:
-                continue
-        if data[i][1][lang]!='&nbsp;':
-            srt+=str(sub_nb)+'\n'
-            sub_nb+=1
-            if data[i+1][0]>data[i][0]:
-                srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(data[i+1][0])
-            else:
-                srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(int(data[i][0])+1000)
-            srt+=data[i][1][lang]+'\n\n'
+        try:
+            if i>0:
+                if data[i][0]<data[i-1][0]:
+                    continue
+            if data[i][1][lang]!='&nbsp;':
+                srt+=str(sub_nb)+'\n'
+                sub_nb+=1
+                if data[i+1][0]>data[i][0]:
+                    srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(data[i+1][0])
+                else:
+                    srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(int(data[i][0])+1000)
+                srt+=data[i][1][lang]+'\n\n'
+        except:
+            continue
     return srt
 
 print("media library path:", PATH)
