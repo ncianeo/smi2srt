@@ -28,14 +28,12 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
 
     def parse_p(item):
         lang = search(item, '<p(.+)class=([a-z]+)').group(2)
-
-        content = item[search(item, '<p(.+)>').end():]
+        content = item[search(item, '<p[^>]+>').end():]
         content = content.replace('\r', '')
         content = content.replace('\n', '')
         content = re.sub('<br ?/?>', '\n', content, flags=re.I)
-        content = re.sub('<.*?>','', content)
+        content = re.sub('<[^>]+>','', content)
         content = content.strip()
-
         return [lang, content]
 
     data = []

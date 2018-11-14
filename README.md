@@ -28,6 +28,12 @@ smi2srt -l <TARGET_LANGUAGE> <MOVIE_LIBRARY_DIR>
 
 ## 변경사항:
 
+### 2018년 11월 14일
+정규표현식에 문제가 있어 tag가 연속으로 사용될 시 자막이 삭제되는 문제 해결
+예)
+"<SYNC Start=732><P Class=KRCC><font color="#ff8080">학교에 선전포고를 한<br>세계 제일의 겁쟁이 신데렐라는</font> 
+변환후 --> 아예내용이 없이 생성됩니다.", 2cpu 허진녕 님 제보
+
 ### 2018년 7월 18일
 chardet 대신 속도가 빠른 cchardet으로 인코딩 감지 라이브러리 변경
 
