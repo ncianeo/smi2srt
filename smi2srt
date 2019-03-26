@@ -7,12 +7,14 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", "--language", help="choose language to convert", default="kr")
-parser.add_argument("dir", help="target directory. ex) ./smi2srt -t ./Movies", default="./")
+parser.add_argument("-r", "--remove_original", help="remove original smi file when converting succeed", default=False, action="store_true")
+parser.add_argument("dir", help="target directory. ex) ./smi2srt <OPTIONS> ./Movies", default="./")
 
 args = parser.parse_args()
 
 PATH = args.dir
-LANG = args.language.upper()+"CC"
+LANG = args.language.upper()+'CC'
+REMOVE_OPTION = args.remove_original
 
 
 def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://github.com/g6123/PySAMI)
@@ -46,12 +48,12 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
                 content = dict(map(parse_p, split_content(item, 'p')))
                 data.append([timecode, content])
     except:
-        print("Conversion ERROR: maybe this file is not supported.")
+        print('Conversion ERROR: maybe this file is not supported.')
     return data
 
 def convert(data, lang): # written by ncianeo
     if lang not in data[0][1].keys():
-        print("lang: %s is not found. will use the first lang in the smi file." %lang)
+        print('lang: %s is not found. will use the first lang in the smi file.' %lang)
         i=0
         while True:
             try:
@@ -59,7 +61,7 @@ def convert(data, lang): # written by ncianeo
                 break
             except:
                 i+=1
-        print("chosen lang: %s" %lang)
+        print('chosen lang: %s' %lang)
     def ms_to_ts(time):
         time = int(time)
         ms = time%1000
@@ -86,10 +88,10 @@ def convert(data, lang): # written by ncianeo
             continue
     return srt
 
-print("media library path:", PATH)
+print('media library path:', PATH)
 success=[]
 fail=[]
-print("finding and converting started...")
+print('finding and converting started...')
 for p,w,f in os.walk(PATH):
     for file_name in f:
         if file_name[-4:].lower()=='.smi':
@@ -102,6 +104,8 @@ for p,w,f in os.walk(PATH):
                 srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+'.srt'),'w',encoding='utf-8')
                 srt_file.write(convert(parse(smi),LANG))
                 success.append(file_name)
+                if REMOVE_OPTION:
+                    os.remove(os.path.join(p,file_name))
             except:
                 fail.append(file_name)
 
@@ -117,3 +121,6 @@ for smi in success:
 print('\nfailed .smi subtitles:')
 for smi in fail:
     print(smi)
+
+if REMOVE_OPTION:
+    print('\nworked smi files are removed due to removal option')
