@@ -8,6 +8,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", "--language", help="choose language to convert", default="kr")
 parser.add_argument("-r", "--remove_original", help="remove original smi file when converting succeed", default=False, action="store_true")
+parser.add_argument("-s", "--suffix", help="adding language suffix (e.g. .ko.srt)", default=False, action="store_true")
+parser.add_argument("-i", "--ignore", help="ignore decoding error", default=False, action="store_true")
 parser.add_argument("dir", help="target directory. ex) ./smi2srt <OPTIONS> ./Movies", default="./")
 
 args = parser.parse_args()
@@ -15,7 +17,12 @@ args = parser.parse_args()
 PATH = args.dir
 LANG = args.language.upper()+'CC'
 REMOVE_OPTION = args.remove_original
+SUFFIX = '.'+args.language.lower() if args.suffix else ''
+DECODE_ERRORS = 'ignore' if args.ignore else 'strict'
 
+langcodeConvRules = {'.kr':'.ko'}
+if(SUFFIX in langcodeConvRules):
+    SUFFIX = langcodeConvRules[SUFFIX]
 
 def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://github.com/g6123/PySAMI)
     search = lambda string, pattern: re.search(pattern, string, flags=re.I)
@@ -100,8 +107,8 @@ for p,w,f in os.walk(PATH):
                 with open(os.path.join(p,file_name),'rb') as smi_file:
                     smi_raw = smi_file.read()
                     encoding = cchardet.detect(smi_raw)
-                smi = smi_raw.decode(encoding['encoding'])
-                srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+'.srt'),'w',encoding='utf-8')
+                smi = smi_raw.decode(encoding['encoding'], errors=DECODE_ERRORS)
+                srt_file = codecs.open(os.path.join(p,os.path.splitext(file_name)[0]+SUFFIX+'.srt'),'w',encoding='utf-8')
                 srt_file.write(convert(parse(smi),LANG))
                 success.append(file_name)
                 if REMOVE_OPTION:
