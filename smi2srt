@@ -26,6 +26,7 @@ if(SUFFIX in langcodeConvRules):
 
 def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://github.com/g6123/PySAMI)
     search = lambda string, pattern: re.search(pattern, string, flags=re.I)
+    tags = re.compile('<[^>]+>')
 
     def split_content(string, tag):
         threshold = '<'+tag
@@ -35,14 +36,21 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
             re.split(threshold, string, flags=re.I)
         ))[1:]
 
+    def remove_tag(matchobj):
+        matchtag = matchobj.group().lower()
+        keep_tags = ['font', 'b', 'i', 'u']
+        for keep_tag in keep_tags:
+            if keep_tag in matchtag:
+                return matchtag
+        return ''
+
     def parse_p(item):
         lang = search(item, '<p(.+)class=([a-z]+)').group(2)
         content = item[search(item, '<p[^>]+>').end():]
         content = content.replace('\r', '')
         content = content.replace('\n', '')
         content = re.sub('<br ?/?>', '\n', content, flags=re.I)
-        content = re.sub('<[^>]+>','', content)
-        content = content.strip()
+        content = re.sub('<[^>]+>', remove_tag, content)
         return [lang, content]
 
     data = []
@@ -56,6 +64,7 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
                 data.append([timecode, content])
     except:
         print('Conversion ERROR: maybe this file is not supported.')
+    
     return data
 
 def convert(data, lang): # written by ncianeo
@@ -86,7 +95,7 @@ def convert(data, lang): # written by ncianeo
             if data[i][1][lang]!='&nbsp;':
                 srt+=str(sub_nb)+'\n'
                 sub_nb+=1
-                if data[i+1][0]>data[i][0]:
+                if int(data[i+1][0])>int(data[i][0]):
                     srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(data[i+1][0])
                 else:
                     srt+='%02d:%02d:%02d,%03d' %ms_to_ts(data[i][0])+' --> '+'%02d:%02d:%02d,%03d\n' %ms_to_ts(int(data[i][0])+1000)
