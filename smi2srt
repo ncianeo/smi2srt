@@ -31,6 +31,12 @@ def parse(smi): # smi parsing algorithm written in PYSAMI by g6123 (https://gith
     def split_content(string, tag):
         threshold = '<'+tag
 
+        if tag is 'p':
+            standard = threshold + ' Class=' + LANG + '>'
+            if standard.upper() not in string.upper():
+                idx = string.find('>') + 1
+                string = string[:idx] + standard + string[idx:]
+
         return list(map(
             lambda item: (threshold+item).strip(),
             re.split(threshold, string, flags=re.I)
