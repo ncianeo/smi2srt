@@ -8,8 +8,6 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-r", "--remove_original",
                     help="remove original smi file when converting succeed", default=False, action="store_true")
-parser.add_argument("-s", "--suffix", help="adding language suffix (e.g. .ko.srt)",
-                    default=True, action="store_true")
 parser.add_argument("-i", "--ignore", help="ignore decoding error",
                     default=False, action="store_true")
 parser.add_argument(
