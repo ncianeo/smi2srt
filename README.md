@@ -18,16 +18,22 @@ pip install cchardet
 
 ## 사용법:
 ~~~bash
-smi2srt -l <TARGET_LANGUAGE> [-r|--remove_original]  <MOVIE_LIBRARY_DIR>
+smi2srt [-r|--remove_original]  <MOVIE_LIBRARY_DIR>
 ~~~
 
-- <TARGET_LANGUAGE> (default = kr) : smi 파일로부터 어느 언어를 불러올지를 지정합니다. 기본 값은 kr(한국어)입니다.
 - <MOVIE_LIBRARY_DIR> : 영화 라이브러리 경로입니다. 세부 경로까지 recursive하게 탐색하므로 라이브러리 디렉토리의 최상위 PATH를 입력하시면 됩니다.
 - -r or --remove_original : 변환이 성공한 smi 원본 파일을 삭제합니다.
+- -i or --ignore : decoding error를 무시하고 변환 작업을 진행합니다.
 
 프로그램 실행 후 변환이 완료된 자막 파일과 실패한 자막 파일이 출력됩니다.
 
 ## 변경사항:
+
+### 2021년 7월 25일
+P CLASS 감지하여 smi 파일 내 언어를 자동으로 추출하고, 언어별로 변환된 결과를 저장.
+예) aaa.smi -> aaa.kr.srt, aaa.en.srt, aaa.es.srt
+따로 language 옵션 지정 안해도 되도록 변경
+suffix option 삭제
 
 ### 2019년 3월 26일
 원본 smi파일을 삭제할 수 있는 옵션 추가
