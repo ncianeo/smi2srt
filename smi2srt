@@ -120,8 +120,8 @@ for p, w, f in os.walk(PATH):
                 langs, data = parse(smi)
                 for lang in langs:
                     lang_code = lang.replace('CC', '')
-                    SUFFIX = '.'+lang_code.lower() if len(
-                        lang_code) == 2 else lang_code[:2].lower() + '_' + lang_code[2:].upper()
+                    SUFFIX = '.'+(lang_code.lower() if len(
+                        lang_code) == 2 else lang_code[:2].lower() + '_' + lang_code[2:].upper())
                     srt_file = codecs.open(os.path.join(p, os.path.splitext(
                         file_name)[0]+SUFFIX+'.srt'), 'w', encoding='utf-8')
                     srt_file.write(convert(data, lang))
